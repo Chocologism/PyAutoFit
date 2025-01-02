@@ -12,6 +12,8 @@ from .analysis import Analysis
 from autofit.non_linear.samples.summary import SamplesSummary
 from autofit.non_linear.samples import SamplesPDF
 
+import numpy as np
+
 logger = logging.getLogger(__name__)
 
 
@@ -416,3 +418,37 @@ class CombinedAnalysis(Analysis):
 
     def compute_latent_samples(self, samples):
         return self.analyses[0].compute_latent_samples(samples=samples)
+
+class CombinedAnalysisWeighted(CombinedAnalysis):
+    def __init__(self, *analyses: Analysis, weights: Optional[List[float]] = None):
+        """
+        A subclass of CombinedAnalysis that supports weighted log likelihood calculation.
+
+        Parameters
+        ----------
+        analyses
+            A list of analysis objects.
+        weights
+            A list of weights for each analysis. If None, all weights are considered equal.
+        """
+        super().__init__(*analyses)
+        self.weights = weights if weights is not None else [1.0] * len(analyses)  # Default to equal weights
+
+    def _summed_log_likelihood(self, instance) -> float:
+        """
+        Compute a weighted log likelihood by summing the weighted log likelihood
+        of each individual analysis.
+
+        Parameters
+        ----------
+        instance
+            An instance of a model
+
+        Returns
+        -------
+        A combined log likelihood
+        """
+        return sum(
+            weight * analysis.log_likelihood_function(instance)
+            for analysis, weight in zip(self.analyses, self.weights)
+        )

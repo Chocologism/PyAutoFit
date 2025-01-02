@@ -700,10 +700,10 @@ class NonLinearSearch(AbstractFactorOptimiser, ABC):
                 paths=self.paths,
                 model=model,
             )
-            analysis.visualize_before_fit_combined(
-                paths=self.paths,
-                model=model,
-            )
+            # analysis.visualize_before_fit_combined(
+            #     paths=self.paths,
+            #     model=model,
+            # )
 
         timeout_seconds = get_timeout_seconds()
 
